@@ -1,4 +1,4 @@
-import { Application, Router } from "@oak/oak";
+import { Application, Router, send } from "@oak/oak";
 import { cors } from "@momiji/cors";
 
 // Open the KV store
@@ -156,6 +156,13 @@ const corsOptions = {
 
 // Enable CORS
 app.use(cors(corsOptions));
+
+// Serve index.html for the root route
+router.get("/", async (ctx) => {
+  await send(ctx, "index.html", {
+    root: `${Deno.cwd()}/`,
+  });
+});
 
 // Set up routes
 router

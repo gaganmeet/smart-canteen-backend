@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canteen Pre-Order System</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #FAF3E0;
+            padding: 20px;
+            color: #333;
+            margin: 0;
+            transition: background-color 0.5s;
+        }
+
+        header {
+            background-color: #8B4513;
+            color: #FFE4B5;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .menu-section, .order-section {
+            margin: 20px auto;
+            text-align: left;
+            background: #FFF8DC;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        h2, h3 {
+            margin-bottom: 10px;
+            color: #8B4513;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            transition: transform 0.2s;
+        }
+
+        .menu-item:hover {
+            transform: scale(1.05);
+            background-color: #F5F5DC;
+        }
+
+        .food-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            margin-right: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-item label {
+            flex: 1;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .menu-item input[type="number"] {
+            width: 50px;
+            padding: 5px;
+            margin-left: 10px;
+            border-radius: 5px;
+            border: 1px solid #8B4513;
+            transition: border 0.3s;
+        }
+
+        .menu-item input[type="number"]:focus {
+            border-color: #A0522D;
+            outline: none;
+        }
+
+        input[type="submit"] {
+            padding: 12px;
+            background-color: #8B4513;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #A0522D;
+        }
+
+        #cart {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background: #FFFACD;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        #cart:hover {
+            background-color: #FAFAD2;
+        }
+
+        .payment-options {
+            margin-top: 20px;
+        }
+
+        .scanner-image {
+            display: none;
+            margin-top: 10px;
+            width: 150px; /* Adjusted size */
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Canteen Pre-Order System</h1>
+        <p>Order your food in advance and pick it up without waiting!</p>
+    </header>
+
+    <div class="container">
+        <section class="menu-section">
+            <h2>Menu</h2>
+            <form id="orderForm" onsubmit="handleFormSubmit(event)">
+                <div id="menuItems"></div> <!-- Dynamic menu will be inserted here -->
+                
+                <section class="order-section">
+                    <h2>Your Order</h2>
+                    <div id="cart">Your cart is empty</div>
+
+                    <div class="payment-options">
+                        <h3>Mode of Payment</h3>
+                        <label>
+                            <input type="radio" name="payment" value="Cash on Delivery" onclick="toggleScanner(false)" required>
+                            Cash on Delivery
+                        </label>
+                        <label>
+                            <input type="radio" name="payment" value="UPI Payment" onclick="toggleScanner(true)">
+                            UPI Payment
+                        </label>
+                        <img src="https://b2024479.smushcdn.com/2024479/wp-content/uploads/2020/05/HelloTech-qr-code-1024x1024.jpg?lossy=1&strip=1&webp=1" id="scanner" class="scanner-image" alt="UPI Scanner">
+                    </div>
+
+                    <div>
+                        <label for="pickup-time">Choose Pickup Time (8 AM - 6 PM):</label>
+                        <input type="time" id="pickup-time" name="pickup-time" required min="08:00" max="18:00">
+                    </div>
+                    <input type="submit" value="Place Order">
+                </section>
+            </form>
+        </section>
+    </div>
+
+    <!-- JavaScript Code is here  -->
+    <script>
+        const form = document.getElementById('orderForm');
+        const menuItemsDiv = document.getElementById('menuItems');
+
+        const items = [
+            { name: 'Rajma Chawal', price: 80, img: 'https://as1.ftcdn.net/v2/jpg/05/99/68/00/1000_F_599680093_9mmRGBbWpl3JKKoR3aiZkYClDdW53q5h.jpg' },
+            { name: 'Chole Chawal', price: 70, img: 'https://i.pinimg.com/originals/cd/df/a4/cddfa4ecbea9c56e6639e8f4395471ae.jpg' },
+            { name: 'Chole Bhature', price: 50, img: 'https://www.shutterstock.com/image-photo/chole-bhature-north-indian-food-600nw-2238261207.jpg' },
+            { name: 'Tea', price: 10, img: 'https://carameltintedlife.com/wp-content/uploads/2021/01/Masala-Chai-.jpg' },
+            { name: 'Coffee', price: 20, img: 'https://images.unsplash.com/photo-1543256840-0709ad5d3726?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8Y29mZmVlJTIwcGhvdG9ncmFpaHxlbnwwfHx8fDE%3D' },
+            { name: 'Hot Milk', price: 15, img: 'https://t4.ftcdn.net/jpg/00/96/47/81/360_F_96478187_wQ5mXwKgSqCHLweSSeYMxVIHMVxjnB6Z.jpg' }
+        ];
+
+        function generateMenu() {
+            items.forEach(item => {
+                const menuItem = document.createElement('div');
+                menuItem.className = 'menu-item';
+                menuItem.innerHTML = `
+                    <img src="${item.img}" class="food-image" alt="${item.name}">
+                    <label>${item.name} - ₹${item.price}</label>
+                    <input type="number" name="quantity-${item.name}" min="0" max="10" value="0">
+                `;
+                menuItemsDiv.appendChild(menuItem);
+            });
+        }
+
+        // Call the function to generate the menu
+        generateMenu();
+
+        let isUPISelected = false;
+
+        function toggleScanner(show) {
+            isUPISelected = show;
+            document.getElementById('scanner').style.display = show ? 'block' : 'none';
+        }
+
+        // Function to handle form submission
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            let orderSummary = '';
+
+            // Collect selected items and their quantities
+            items.forEach(item => {
+                const quantity = form.querySelector(input[name="quantity-${item.name}"]).value;
+                if (quantity > 0) {
+                    orderSummary += `${item.name}: ${quantity} - ₹${item.price * quantity}\n`;
+                }
+            });
+
+            if (!orderSummary) {
+                alert('Your cart is empty!');
+                return;
+            }
+
+            const paymentMethod = form.querySelector('input[name="payment"]:checked').value;
+            const pickupTime = document.getElementById('pickup-time').value;
+            
+            const finalOrder = `
+                Order Summary:\n${orderSummary}
+                Payment Method: ${paymentMethod}\n
+                Pickup Time: ${pickupTime}
+            `;
+
+            alert(finalOrder);
+        }
+    </script>
+</body>
+</html>
