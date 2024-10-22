@@ -60,16 +60,16 @@ async function httpAddMenuItem(ctx) {
     ctx.throw(415);
   }
   const menuItem = await ctx.request.body.json();
-  const { name, price, description } = menuItem;
+  const { name, price, description, imgUrl } = menuItem;
 
-  if (!name || !price || !description) {
+  if (!name || !price || !description || !imgUrl) {
     ctx.response.status = 400;
     ctx.response.body = { error: "Missing required menu item property" };
     return;
   }
 
   const id = crypto.randomUUID();
-  const newMenuItem = { id, name, price, description };
+  const newMenuItem = { id, name, price, description, imgUrl };
   await addMenuItem(newMenuItem);
   ctx.response.status = 201;
   ctx.response.body = newMenuItem;
