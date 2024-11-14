@@ -192,6 +192,12 @@ router.get("/", async (ctx) => {
   });
 });
 
+router.get("/admin", async (ctx) => {
+  await send(ctx, "admin.html", {
+    root: `${Deno.cwd()}/`,
+  });
+});
+
 // Set up routes
 router
   .get("/menu", httpGetAllMenuItems)
