@@ -18,8 +18,13 @@ async function addMenuItem(menuItem) {
 }
 
 async function deleteMenuItem(id) {
-  const result = await kv.delete(["menuItems", id]);
-  return result && result.ok;
+  const key = ["menuItems", id];
+  const exists = await kv.get(key);
+  if (exists.value) {
+    await kv.delete(key);
+    return true;
+  }
+  return false;
 }
 
 async function getMenuItemById(id) {
@@ -97,9 +102,10 @@ async function httpDeleteMenuItem(ctx) {
     const success = await deleteMenuItem(id);
     if (success) {
       ctx.response.status = 204; // No Content
+      ctx.response.body = null; 
     } else {
       ctx.response.status = 404;
-      ctx.response.body = { error: "Menu item not found or could not be deleted" };
+      ctx.response.body = { error: "Menu item not found" };
     }
   } catch (error) {
     console.error("Error deleting menu item:", error);
