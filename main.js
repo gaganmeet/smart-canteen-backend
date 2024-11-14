@@ -19,7 +19,7 @@ async function addMenuItem(menuItem) {
 
 async function deleteMenuItem(id) {
   const result = await kv.delete(["menuItems", id]);
-  return result.ok;
+  return result && result.ok;
 }
 
 async function getMenuItemById(id) {
@@ -93,12 +93,18 @@ async function httpGetMenuItem(ctx) {
 
 async function httpDeleteMenuItem(ctx) {
   const id = ctx.params.id;
-  const success = await deleteMenuItem(id);
-  if (success) {
-    ctx.response.status = 204; // No Content
-  } else {
-    ctx.response.status = 404;
-    ctx.response.body = { error: "Menu item not found" };
+  try {
+    const success = await deleteMenuItem(id);
+    if (success) {
+      ctx.response.status = 204; // No Content
+    } else {
+      ctx.response.status = 404;
+      ctx.response.body = { error: "Menu item not found or could not be deleted" };
+    }
+  } catch (error) {
+    console.error("Error deleting menu item:", error);
+    ctx.response.status = 500;
+    ctx.response.body = { error: "Internal server error" };
   }
 }
 
