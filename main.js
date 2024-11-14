@@ -17,6 +17,11 @@ async function addMenuItem(menuItem) {
   await kv.set(["menuItems", menuItem.id], menuItem);
 }
 
+async function deleteMenuItem(id) {
+  const result = await kv.delete(["menuItems", id]);
+  return result.ok;
+}
+
 async function getMenuItemById(id) {
   const menuItem = await kv.get(["menuItems", id]);
   return menuItem.value;
@@ -80,6 +85,17 @@ async function httpGetMenuItem(ctx) {
   const menuItem = await getMenuItemById(id);
   if (menuItem) {
     ctx.response.body = menuItem;
+  } else {
+    ctx.response.status = 404;
+    ctx.response.body = { error: "Menu item not found" };
+  }
+}
+
+async function httpDeleteMenuItem(ctx) {
+  const id = ctx.params.id;
+  const success = await deleteMenuItem(id);
+  if (success) {
+    ctx.response.status = 204; // No Content
   } else {
     ctx.response.status = 404;
     ctx.response.body = { error: "Menu item not found" };
@@ -169,6 +185,7 @@ router
   .get("/menu", httpGetAllMenuItems)
   .post("/menu", httpAddMenuItem)
   .get("/menu/:id", httpGetMenuItem)
+  .delete("/menu/:id", httpDeleteMenuItem)
   .get("/orders", httpGetAllOrders)
   .post("/orders", httpAddOrder)
   .get("/orders/:id", httpGetOrder)
